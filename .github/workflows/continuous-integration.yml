@@ -1,24 +1,24 @@
 name: Continuous Integration
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+  push:
+    branches:
+      - "main"
 
 permissions:
   contents: read
 
 jobs:
-  build:
-
+  build-env:
+    name: "Build Environment"
     runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup PHP
+    - name: Install PHP with extensions
       uses: shivammathur/setup-php@2.31.1
       with:
         php-version: '8.2'
@@ -35,19 +35,73 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v4.1.1
+      uses: actions/cache@v4
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
 
-    - name: Install dependencies
+    - name: Install dependencies with Composer
       run: composer install --prefer-dist --no-progress
 
-    - name: Run PHPStan
+  coding-standards:
+    name: "Coding Standards"
+    needs: build-env
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Restore Composer cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install PHP with extensions
+      uses: shivammathur/setup-php@2.31.1
+      with:
+        php-version: '8.2'
+        tools: phpstan
+
+    - name: Install Composer dependencies (Skip if already restored)
+      run: composer install --prefer-dist --no-progress
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+
+    - name: Run PHPStan for static analysis
       run: phpstan analyse
 
-    - name: Run PHPUnit
-      run: phpunit tests --coverage-text
+  tests:
+    name: "Tests"
+    needs: build-env
+    runs-on: ubuntu-24.04
 
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Restore Composer cache
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install PHP with extensions
+      uses: shivammathur/setup-php@2.31.1
+      with:
+        php-version: '8.2'
+        tools: phpunit
+        coverage: xdebug
+
+    - name: Install Composer dependencies (Skip if already restored)
+      run: composer install --prefer-dist --no-progress
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+
+    - name: Run PHPUnit tests with coverage
+      run: phpunit tests --coverage-text

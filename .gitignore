@@ -83,4 +83,7 @@ fabric.properties
 /logs
 
 # Environment file
-/.env
+.env
+
+# Code formatter
+.php-cs-fixer.*

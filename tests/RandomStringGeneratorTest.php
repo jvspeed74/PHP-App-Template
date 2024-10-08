@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Techtrio\SlimF1Engine\RandomStringGenerator;
 
+
+#[CoversClass(RandomStringGenerator::class)]
+#[UsesClass(RandomStringGenerator::class)]
 class RandomStringGeneratorTest extends TestCase
 {
     protected RandomStringGenerator $generator;

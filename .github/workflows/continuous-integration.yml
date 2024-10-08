@@ -10,25 +10,13 @@ permissions:
   contents: read
 
 jobs:
-  build-env:
-    name: "Build Environment"
+  build-composer:
+    name: "Build Composer"
     runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Install PHP with extensions
-      uses: shivammathur/setup-php@2.31.1
-      with:
-        php-version: '8.2'
-        tools: phpunit, phpstan, cs2pr
-        coverage: xdebug
-      env:
-        fail-fast: true
-
-    - name: Setup problem matchers for PHPUnit
-      run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -47,7 +35,7 @@ jobs:
 
   coding-standards:
     name: "Coding Standards"
-    needs: build-env
+    needs: build-composer
     runs-on: ubuntu-24.04
 
     steps:
@@ -62,22 +50,22 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Install Composer dependencies (Skip if already restored)
+      run: composer install --prefer-dist --no-progress
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+
     - name: Install PHP with extensions
       uses: shivammathur/setup-php@2.31.1
       with:
         php-version: '8.2'
-        tools: phpstan
-
-    - name: Install Composer dependencies (Skip if already restored)
-      run: composer install --prefer-dist --no-progress
-      if: steps.composer-cache.outputs.cache-hit != 'true'
+        tools: phpstan, cs2pr
 
     - name: Run PHPStan for static analysis
       run: phpstan analyse
 
   tests:
     name: "Tests"
-    needs: build-env
+    needs: build-composer
     runs-on: ubuntu-24.04
 
     steps:
@@ -92,16 +80,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-php-
 
+    - name: Install Composer dependencies (Skip if already restored)
+      run: composer install --prefer-dist --no-progress
+      if: steps.composer-cache.outputs.cache-hit != 'true'
+    
     - name: Install PHP with extensions
       uses: shivammathur/setup-php@2.31.1
       with:
         php-version: '8.2'
-        tools: phpunit
+        tools: phpunit, cs2pr
         coverage: xdebug
 
-    - name: Install Composer dependencies (Skip if already restored)
-      run: composer install --prefer-dist --no-progress
-      if: steps.composer-cache.outputs.cache-hit != 'true'
+
+    - name: Setup problem matchers for PHPUnit
+      run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Run PHPUnit tests with coverage
       run: phpunit tests --coverage-text

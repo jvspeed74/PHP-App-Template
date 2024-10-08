@@ -2,6 +2,7 @@
   "name": "techtrio/slim-f1-engine",
   "description": "SlimF1Engine is a lightweight, high-performance API built with the Slim framework and Eloquent ORM, designed for managing Formula 1 data such as cars, drivers, teams, events, and race results. Perfect for developers looking to integrate detailed F1 statistics and race information into their applications with a simple and fast API.",
   "type": "library",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "Techtrio\\SlimF1Engine\\": "src/"
@@ -23,15 +24,15 @@
   ],
   "require": {
     "slim/slim": "^4.0",
-    "illuminate/database": "^8.0",
+    "illuminate/database": "^v11.27.0",
     "vlucas/phpdotenv": "^5.0",
     "zircote/swagger-php": "^4.0",
     "psr/http-message": "^1.0",
     "slim/psr7": "^1.7",
     "php-di/php-di": "^7.0",
-    "illuminate/events": "^8.83",
-    "illuminate/filesystem": "^1.1",
-    "illuminate/pagination": "^8.83"
+    "illuminate/events": "^v11.26.0",
+    "illuminate/filesystem": "^v11.26.0",
+    "illuminate/pagination": "^v11.26.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.0",

@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true">
+<phpunit bootstrap="vendor/autoload.php" colors="true" stopOnFailure="false" failOnRisky="true" failOnWarning="true"
+         strictCoverage="true">
     <testsuites>
-        <testsuite name="Application Test Suite">
+        <testsuite name="Unit Tests">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
 </phpunit>

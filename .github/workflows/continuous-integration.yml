@@ -56,10 +56,13 @@ jobs:
       uses: shivammathur/setup-php@2.31.1
       with:
         php-version: '8.2'
-        tools: phpstan, cs2pr
+        tools: phpstan, cs2pr, php-cs-fixer
 
     - name: Run PHPStan for static analysis
       run: phpstan analyse
+
+    - name: Check for PER-CS2.0 Coding Standard Discrepancies
+      run: php-cs-fixer check src --rules=@PER-CS2.0 --format=checkstyle | cs2pr
 
   tests:
     name: "Run PHP Tests"
